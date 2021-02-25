@@ -45,7 +45,7 @@ class Intersection:
     def green_street(self, timestep):
         if self.schedule_length == 0:
             return None
-        timestep % self.schedule_length
+        timestep = timestep % self.schedule_length
         for street, phase_duration in self.schedule:
             timestep -= phase_duration
             if timestep < 0:
@@ -87,7 +87,7 @@ def make_baseline_schedule(intersections, green_phase_length, strategy="random")
             pass
     
 
-def run_simulation(simulation_duration, cars, streets, bonus_points):
+def run_simulation(simulation_duration, cars, bonus_points):
     score = 0
     for timestep in range(simulation_duration):
         done_cars = []
@@ -110,7 +110,7 @@ def run_simulation(simulation_duration, cars, streets, bonus_points):
                     car.current_street.add_to_queue(car)
                     car.pos_on_street = "queue"
         for car_idx in done_cars:
-            cars.pop[car_idx]
+            cars.pop(car_idx)
             score += bonus_points + simulation_duration - timestep
     return score
 
@@ -128,7 +128,6 @@ if __name__ == '__main__':
         path = f"qualification_round_2021.in/{problem}"
         metadata, problem_data = utilities.load_input_file(path)
         simulation_duration, intersections_count, streets_count, cars_count, bonus_points = map(int, metadata)
-        simulation_duration = 10
     
         streets_raw = problem_data[:streets_count]
     
@@ -162,7 +161,7 @@ if __name__ == '__main__':
 
         #------- Simulating result -------
 
-        score = run_simulation(simulation_duration, cars, streets, bonus_points)
+        score = run_simulation(simulation_duration, cars, bonus_points)
         
         print(f"Score: {score}")
         print(f"Number of cars not finished: {len(cars)}")
