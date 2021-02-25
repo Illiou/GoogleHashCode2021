@@ -148,7 +148,7 @@ if __name__ == '__main__':
 
         #------- Solution construction -------
 
-        make_baseline_schedule(intersections.values(), 2, "random")
+        make_baseline_schedule(intersections.values(), 1, "random")
 
         #------- Simulating result -------
 
@@ -161,7 +161,7 @@ if __name__ == '__main__':
 
         submission = construct_submission(intersections.values())
         
-        print(f"Time for everything: {utilities.current_milli_time() - start_time}")
+        print(f"Time for everything: {round(utilities.current_milli_time() - start_time, 3)}")
 
         # write submission to file  
         with open(f"out/submission_{problem}_{utilities.get_current_time_for_filename()}.txt", "w+") as f:

@@ -2,7 +2,7 @@ import time
 
 
 def current_milli_time():
-    return round(time.perf_counter() * 1000)
+    return round(time.perf_counter(), 3)
 
 
 def get_current_time_for_filename():
