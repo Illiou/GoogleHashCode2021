@@ -134,10 +134,13 @@ if __name__ == '__main__':
             intersections[start].add_outgoing_street(street)
             intersections[end].add_incoming_street(street)
     
+        make_baseline_schedule(intersections, 2, "random")
+
         score = run_simulation(simulation_duration, cars, streets, bonus_points)
         
-        print(score)
-    
+        print(f"{problem}: {score}")
+        print(f"{len(cars)}"")
+        
         submission = construct_submission(intersections)
         
         # write submission to file  
