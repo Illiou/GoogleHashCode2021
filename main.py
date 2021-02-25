@@ -18,6 +18,9 @@ class Street:
 
     def is_green(self, timestep):
         return self.end.green_street(timestep) == self
+    
+    def __repr__(self):
+        return self.name
 
 
 class Intersection:
