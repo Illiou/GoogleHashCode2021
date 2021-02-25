@@ -92,8 +92,8 @@ def run_simulation(simulation_duration, cars, bonus_points):
     for timestep in range(simulation_duration):
         done_cars = []
         for i, car in enumerate(cars):
-            print([s.is_green(timestep) for s in streets.values()])
-            print(f"t={timestep}: car-{i}-{car.current_street.name}-{car.pos_on_street}")
+            #print([s.is_green(timestep) for s in streets.values()])
+            #print(f"t={timestep}: car-{i}-{car.current_street.name}-{car.pos_on_street}")
             if car.pos_on_street == "queue":
                 if len(car.current_street.queue) > 0 \
                 and car.current_street.queue[0] == car \
@@ -110,15 +110,15 @@ def run_simulation(simulation_duration, cars, bonus_points):
                         continue
                     car.current_street.add_to_queue(car)
                     car.pos_on_street = "queue"
-        for car_idx in done_cars:
+        for car_idx in reversed(done_cars):
             cars.pop(car_idx)
             score += bonus_points + simulation_duration - timestep
     return score
 
 
 if __name__ == '__main__':
-    # problem_files = ["a.txt", "b.txt", "c.txt", "d.txt", "e.txt", "f.txt"]
-    problem_files = ["a.txt"]
+    problem_files = ["a.txt", "b.txt", "c.txt", "d.txt", "e.txt", "f.txt"]
+    #problem_files = ["a.txt"]
     for problem in problem_files:
         print(f"Running file {problem}")
         start_time = utilities.current_milli_time()
@@ -172,7 +172,7 @@ if __name__ == '__main__':
         submission = construct_submission(intersections.values())
         
         print(f"Time for everything: {round(utilities.current_milli_time() - start_time, 3)}")
-        print(submission)
+        # print(submission)
 
         # write submission to file  
         with open(f"out/submission_{problem}_{utilities.get_current_time_for_filename()}.txt", "w+") as f:
