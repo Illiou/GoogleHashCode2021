@@ -164,7 +164,7 @@ if __name__ == '__main__':
         print(f"Time for everything: {utilities.current_milli_time() - start_time}")
 
         # write submission to file  
-        with open(f"out/submission_{problem}", "w+") as f:
+        with open(f"out/submission_{problem}_{utilities.get_current_time_for_filename()}.txt", "w+") as f:
             f.write(submission)
             
 
