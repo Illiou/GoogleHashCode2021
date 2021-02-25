@@ -92,6 +92,7 @@ def run_simulation(simulation_duration, cars, bonus_points):
     for timestep in range(simulation_duration):
         done_cars = []
         for i, car in enumerate(cars):
+            print([s.is_green(timestep) for s in streets.values()])
             print(f"t={timestep}: car-{i}-{car.current_street.name}-{car.pos_on_street}")
             if car.pos_on_street == "queue":
                 if len(car.current_street.queue) > 0 \
