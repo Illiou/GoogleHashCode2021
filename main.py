@@ -82,9 +82,9 @@ def make_baseline_schedule(intersections, green_phase_length, strategy="random")
         if strategy == "random":
             intersection.set_schedule([(street, green_phase_length) for street in intersection.incoming])
         elif strategy == "shortest":
-            pass
+            intersection.set_schedule([(street, green_phase_length) for street in sorted(intersection.incoming,key=lambda x: x.length)])
         elif strategy == "longest":
-            pass
+            intersection.set_schedule([(street, green_phase_length) for street in sorted(intersection.incoming,key=lambda x: x.length, reverse=True)])
     
 
 def run_simulation(simulation_duration, cars, bonus_points):
@@ -158,7 +158,7 @@ if __name__ == '__main__':
 
         #------- Solution construction -------
 
-        make_baseline_schedule(intersections.values(), 1, "random")
+        make_baseline_schedule(intersections.values(), 1, "shortest")
 
         #------- Simulating result -------
 
