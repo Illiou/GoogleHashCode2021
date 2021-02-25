@@ -171,6 +171,7 @@ if __name__ == '__main__':
         submission = construct_submission(intersections.values())
         
         print(f"Time for everything: {round(utilities.current_milli_time() - start_time, 3)}")
+        print(submission)
 
         # write submission to file  
         with open(f"out/submission_{problem}_{utilities.get_current_time_for_filename()}.txt", "w+") as f:
