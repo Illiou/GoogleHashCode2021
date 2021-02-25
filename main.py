@@ -13,8 +13,8 @@ class Street:
     def add_to_queue(self, car):
         self.queue.append(car)
     
-    def remove_from_queue(self, car):
-        self.queue.popleft(car)
+    def remove_from_queue(self):
+        return self.queue.popleft()
 
     def is_green(self, timestep):
         return self.end.green_street(timestep) == self
@@ -29,13 +29,15 @@ class Intersection:
         self.schedule = []
         self.schedule_length = 0
 
-    def add_incoming_street(self, street, green_phase=1):
+    def add_incoming_street(self, street):
         self.incoming.add(street)
-        self.schedule.append((street, green_phase))
-        self.schedule_length += green_phase
 
     def add_outgoing_street(self, street):
         self.outgoing.add(street)
+    
+    def set_schedule(self, schedule):
+        self.schedule = schedule
+        self.schedule_length = sum(s[1] for s in self.schedule)
         
     def green_street(self, timestep):
         if self.schedule_length == 0:
@@ -51,7 +53,7 @@ class Car:
     def __init__(self, start_street, route):
         self.start_street = start_street
         self.route = deque(route)
-        self.current_street = start_street
+        self.current_street = self.route.popleft()
         self.pos_on_street = "queue"
     
     
@@ -75,7 +77,7 @@ def construct_submission(intersections):
 def make_baseline_schedule(intersections, green_phase_length, strategy="random"):
     for intersection in intersections:
         if strategy == "random":
-            intersection.schedule = [(street, green_phase_length) for street in intersection.incoming]
+            intersection.set_schedule([(street, green_phase_length) for street in intersection.incoming])
         elif strategy == "shortest":
             pass
         elif strategy == "longest":
@@ -87,6 +89,14 @@ def run_simulation(simulation_duration, cars, streets, bonus_points):
     for timestep in range(simulation_duration):
         done_cars = []
         for i, car in enumerate(cars):
+            print(f"t={timestep}: car-{i}-{car.current_street.name}-{car.pos_on_street}")
+            if car.pos_on_street == "queue":
+                if len(car.current_street.queue) > 0 \
+                and car.current_street.queue[0] == car \
+                and car.current_street.is_green(timestep):
+                    car.current_street.remove_from_queue()
+                    car.pos_on_street = 0
+                    car.current_street = car.route.popleft()
             if not car.pos_on_street == "queue":
                 car.pos_on_street += 1
                 if car.pos_on_street == car.current_street.length:
@@ -96,13 +106,6 @@ def run_simulation(simulation_duration, cars, streets, bonus_points):
                         continue
                     car.current_street.add_to_queue(car)
                     car.pos_on_street = "queue"
-            else:
-                if len(car.current_street.queue) > 0 \
-                and car.current_street.queue[0] == car \
-                and car.current_street.is_green(timestep):
-                    car.current_street.get_next_car()
-                    car.pos_on_street = 1
-                    car.current_street = car.route.popleft()
         for car_idx in done_cars:
             cars.pop[car_idx]
             score += bonus_points + simulation_duration - timestep
@@ -122,6 +125,7 @@ if __name__ == '__main__':
         path = f"qualification_round_2021.in/{problem}"
         metadata, problem_data = utilities.load_input_file(path)
         simulation_duration, intersections_count, streets_count, cars_count, bonus_points = map(int, metadata)
+        simulation_duration = 10
     
         streets_raw = problem_data[:streets_count]
     
@@ -143,7 +147,10 @@ if __name__ == '__main__':
             intersections[start].add_outgoing_street(street)
             intersections[end].add_incoming_street(street)
             
-        cars = [Car(streets[car_data[1]], map(lambda name: streets[name], car_data[1:])) for car_data in problem_data[streets_count:]]
+        cars = [Car(streets[car_data[1]], map(lambda name: streets[name], car_data[1:]))
+                    for car_data in problem_data[streets_count:]]
+        for car in cars:
+            car.current_street.add_to_queue(car)
 
 
         #------- Solution construction -------
