@@ -82,7 +82,7 @@ def make_baseline_schedule(intersections, green_phase_length, strategy="random")
         if strategy == "random":
             intersection.set_schedule([(street, green_phase_length) for street in intersection.incoming])
         elif strategy == "shortest":
-            intersection.set_schedule([(street, green_phase_length) for street in sorted(intersection.incoming,key=lambda x: x.length)])
+            intersection.set_schedule([(street, green_phase_length+i) for i, street in enumerate(sorted(intersection.incoming,key=lambda x: x.length))])
         elif strategy == "longest":
             intersection.set_schedule([(street, green_phase_length) for street in sorted(intersection.incoming,key=lambda x: x.length, reverse=True)])
     
