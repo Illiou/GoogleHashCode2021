@@ -22,6 +22,7 @@ class Street:
 
 class Intersection:
     def __init__(self, id):
+        self.id = id
         self.incoming = set()
         self.outgoing = set()
         # schedule: [(street, green_phase_length), ...]
@@ -56,11 +57,11 @@ class Car:
     
 
 def construct_submission(intersections):
-    scheduled_inters = filter(lambda inters: inters.schedule_length > 0, intersections)
+    scheduled_inters = list(filter(lambda inters: inters.schedule_length > 0, intersections))
     out_lines = [len(scheduled_inters)]
     for inter in scheduled_inters:
         out_lines.append(inter.id)
-        scheduled_streets = filter(lambda street_phase: street_phase[1] > 0, inter.schedule)
+        scheduled_streets = list(filter(lambda street_phase: street_phase[1] > 0, inter.schedule))
         out_lines.append(len(scheduled_streets))
         for street, phase in scheduled_streets:
             out_lines.append(" ".join((street.name, str(phase))))
@@ -83,7 +84,7 @@ def make_baseline_schedule(intersections, green_phase_length, strategy="random")
 
 def run_simulation(simulation_duration, cars, streets, bonus_points):
     score = 0
-    for timestep in simulation_duration:
+    for timestep in range(simulation_duration):
         done_cars = []
         for i, car in enumerate(cars):
             if not car.pos_on_street == "queue":
@@ -96,7 +97,9 @@ def run_simulation(simulation_duration, cars, streets, bonus_points):
                     car.current_street.add_to_queue(car)
                     car.pos_on_street = "queue"
             else:
-                if car.current_street.queue[0] == car and car.current_street.is_green(timestep):
+                if len(car.current_street.queue) > 0 \
+                and car.current_street.queue[0] == car \
+                and car.current_street.is_green(timestep):
                     car.current_street.get_next_car()
                     car.pos_on_street = 1
                     car.current_street = car.route.popleft()
@@ -110,15 +113,21 @@ if __name__ == '__main__':
     # problem_files = ["a.txt", "b.txt", "c.txt", "d.txt", "e.txt", "f.txt"]
     problem_files = ["a.txt"]
     for problem in problem_files:
-        
+        print(f"Running file {problem}")
+        start_time = utilities.current_milli_time()
+
+
+        #------- Loading problem -------
+
         path = f"qualification_round_2021.in/{problem}"
-    
         metadata, problem_data = utilities.load_input_file(path)
         simulation_duration, intersections_count, streets_count, cars_count, bonus_points = map(int, metadata)
     
         streets_raw = problem_data[:streets_count]
-        cars = [(car[0], car[1:]) for car in problem_data[streets_count:]]
     
+        
+        #------- Data structures construction -------
+
         intersections = {}
         streets = {}
     
@@ -133,16 +142,27 @@ if __name__ == '__main__':
             streets[name] = street
             intersections[start].add_outgoing_street(street)
             intersections[end].add_incoming_street(street)
-    
-        make_baseline_schedule(intersections, 2, "random")
+            
+        cars = [Car(streets[car_data[1]], map(lambda name: streets[name], car_data[1:])) for car_data in problem_data[streets_count:]]
+
+
+        #------- Solution construction -------
+
+        make_baseline_schedule(intersections.values(), 2, "random")
+
+        #------- Simulating result -------
 
         score = run_simulation(simulation_duration, cars, streets, bonus_points)
         
-        print(f"{problem}: {score}")
-        print(f"{len(cars)}"")
+        print(f"Score: {score}")
+        print(f"Number of cars not finished: {len(cars)}")
         
-        submission = construct_submission(intersections)
+        #------- Saving solution -------
+
+        submission = construct_submission(intersections.values())
         
+        print(f"Time for everything: {utilities.current_milli_time() - start_time}")
+
         # write submission to file  
         with open(f"out/submission_{problem}", "w+") as f:
             f.write(submission)
